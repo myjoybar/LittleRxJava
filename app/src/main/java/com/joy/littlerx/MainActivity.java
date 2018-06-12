@@ -2,14 +2,15 @@ package com.joy.littlerx;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.joy.rxjava.functions.Function;
 import com.joy.rxjava.observable.Observable;
 import com.joy.rxjava.observable.ObservableEmitter;
 import com.joy.rxjava.observable.ObservableOnSubscribe;
 import com.joy.rxjava.observer.Observer;
+import com.joy.rxjava.utils.RLog;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,36 +52,83 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
 			@Override
 			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
-				Log.d(TAG, "onNext");
+				RLog.printInfo("observable: onNext");
 				emitter.onNext(1);
+				RLog.printInfo("observable: onComplete");
+				emitter.onComplete();
 			}
 		});
-
 		Observer<Integer> observer = new Observer<Integer>() {
 
 
 			@Override
 			public void onSubscribe() {
-				Log.d(TAG, "onSubscribe");
+				RLog.printInfo("Observer: onSubscribe");
 			}
 
 			@Override
 			public void onNext(Integer value) {
-				Log.d(TAG, "onNext " + value);
+				RLog.printInfo( "Observer: onNext,"+value);
 			}
 
 			@Override
 			public void onError(Throwable e) {
-				Log.d(TAG, "onError " + e.getMessage());
+				RLog.printInfo( "Observer: onError,"+e.getMessage());
 			}
 
 			@Override
 			public void onComplete() {
-				Log.d(TAG, "onComplete");
+				RLog.printInfo( "Observer: onComplete");
 			}
 		};
+
 		observable.subscribe(observer);
 	}
 
+
+	private void  test2(){
+		Observer<String> observer = new Observer<String>() {
+
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo( "Observer: onSubscribe");
+			}
+
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo( "Observer: onNext,"+value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo( "Observer: onError,"+e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo( "Observer: onComplete");
+			}
+		};
+
+		Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				RLog.printInfo( "Observable: onNext");
+				emitter.onNext(1);
+				RLog.printInfo( "Observable: onComplete");
+				emitter.onComplete();
+			}
+		});
+		Observable<String> observableMap = observable.map(new Function<Integer, String>() {
+			@Override
+			public String apply(Integer integer) throws Exception {
+				return "AAAAAA";
+			}
+		});
+
+		observableMap.subscribe(observer);
+
+
+	}
 
 }

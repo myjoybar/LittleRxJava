@@ -1,5 +1,6 @@
 package com.joy.rxjava.observable;
 
+import com.joy.rxjava.functions.Function;
 import com.joy.rxjava.observer.Observer;
 
 /**
@@ -18,4 +19,10 @@ public abstract class Observable<T> implements ObservableSource<T> {
 	}
 
 	protected abstract void subscribeActual(Observer<? super T> observer);
+
+	public final <R> Observable<R> map(Function<? super T, ? extends R> mapper) {
+
+		return new ObservableMap<T, R>(this, mapper);
+	}
+
 }

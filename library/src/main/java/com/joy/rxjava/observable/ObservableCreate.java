@@ -1,6 +1,8 @@
 package com.joy.rxjava.observable;
 
 import com.joy.rxjava.observer.Observer;
+import com.joy.rxjava.utils.CheckUtils;
+import com.joy.rxjava.utils.RLog;
 
 /**
  * Created by joybar on 2018/6/11.
@@ -8,7 +10,7 @@ import com.joy.rxjava.observer.Observer;
 
 public final class ObservableCreate<T> extends Observable<T> {
 
-	final ObservableOnSubscribe<T> source;
+	final ObservableOnSubscribe<T> source;//create 中传递的对象，执行subscribe会真正开始执行
 
 	public ObservableCreate(ObservableOnSubscribe<T> source) {
 		this.source = source;
@@ -16,9 +18,12 @@ public final class ObservableCreate<T> extends Observable<T> {
 
 	@Override
 	protected void subscribeActual(Observer<? super T> observer) {
+		//observer为观察者，当emitter中的方法执行时，会调用observer中的相关方法
 		CreateEmitter<T> parent = new CreateEmitter<T>(observer);
+		//通知观察者被订阅，
 		observer.onSubscribe();
 		try {
+			//真正开始执行，执行emitter中的方法
 			source.subscribe(parent);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -37,10 +42,8 @@ public final class ObservableCreate<T> extends Observable<T> {
 
 		@Override
 		public void onNext(T t) {
-			if (t == null) {
-				onError(new NullPointerException("onNext called with null"));
-				return;
-			}
+			RLog.printInfo("ObservableCreate: onNext");
+			CheckUtils.checkNotNull(t,"onNext called parameter can not be null");
 			if (!isDisposed()) {
 				observer.onNext(t);
 			}
@@ -49,7 +52,7 @@ public final class ObservableCreate<T> extends Observable<T> {
 		@Override
 		public void onError(Throwable error) {
 			if (error == null) {
-				error = new NullPointerException("onError called with null. Null values are generally not allowed in 2.x operators and sources.");
+				error = new NullPointerException("onError called with null. Null values are generally not allowed ");
 			}
 			if (!isDisposed()) {
 				observer.onError(error);
@@ -59,6 +62,7 @@ public final class ObservableCreate<T> extends Observable<T> {
 
 		@Override
 		public void onComplete() {
+			RLog.printInfo("ObservableCreate: onComplete");
 			if (!isDisposed()) {
 				observer.onComplete();
 
