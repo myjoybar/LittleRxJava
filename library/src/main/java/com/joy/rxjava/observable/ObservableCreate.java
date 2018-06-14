@@ -24,6 +24,7 @@ public final class ObservableCreate<T> extends Observable<T> {
 		observer.onSubscribe();
 		try {
 			//真正开始执行，执行emitter中的方法
+			RLog.printInfo("真正开始执行，执行emitter中的方法");
 			source.subscribe(parent);
 		} catch (Exception e) {
 			e.printStackTrace();

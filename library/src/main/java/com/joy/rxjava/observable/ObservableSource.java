@@ -8,6 +8,5 @@ import com.joy.rxjava.observer.Observer;
 
 public interface ObservableSource<T> {
 
-
 	void subscribe(Observer<? super T> observer);
 }

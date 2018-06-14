@@ -16,13 +16,13 @@ public class RLog {
 
 	public static void printInfo(String msg) {
 		if (enable) {
-			Log.d(TAG, msg);
+			Log.d(TAG, getTreadName() + msg);
 		}
 	}
 
 	public static void printError(String msg) {
 		if (enable) {
-			Log.e(TAG, msg);
+			Log.e(TAG, getTreadName() + msg);
 		}
 	}
 
@@ -31,7 +31,13 @@ public class RLog {
 			if (args.length > 0) {
 				message = String.format(message, args);
 			}
-			Log.e(TAG, message);
+			Log.e(TAG, getTreadName() + message);
 		}
 	}
+
+
+	private static String getTreadName() {
+		return "[Thread: " + Thread.currentThread().getName() + "]_";
+	}
+
 }

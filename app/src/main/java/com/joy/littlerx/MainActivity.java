@@ -10,6 +10,7 @@ import com.joy.rxjava.observable.Observable;
 import com.joy.rxjava.observable.ObservableEmitter;
 import com.joy.rxjava.observable.ObservableOnSubscribe;
 import com.joy.rxjava.observer.Observer;
+import com.joy.rxjava.schedulers.Schedulers;
 import com.joy.rxjava.utils.RLog;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		int id = v.getId();
 		switch (id) {
 			case R.id.btn_test1:
-				test();
+				test4Thread();
 				break;
 
 			default:
@@ -68,17 +69,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 			@Override
 			public void onNext(Integer value) {
-				RLog.printInfo( "Observer: onNext,"+value);
+				RLog.printInfo("Observer: onNext," + value);
 			}
 
 			@Override
 			public void onError(Throwable e) {
-				RLog.printInfo( "Observer: onError,"+e.getMessage());
+				RLog.printInfo("Observer: onError," + e.getMessage());
 			}
 
 			@Override
 			public void onComplete() {
-				RLog.printInfo( "Observer: onComplete");
+				RLog.printInfo("Observer: onComplete");
 			}
 		};
 
@@ -86,36 +87,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 	}
 
 
-	private void  test2(){
+	private void test2() {
 		Observer<String> observer = new Observer<String>() {
 
 			@Override
 			public void onSubscribe() {
-				RLog.printInfo( "Observer: onSubscribe");
+				RLog.printInfo("Observer: onSubscribe");
 			}
 
 			@Override
 			public void onNext(String value) {
-				RLog.printInfo( "Observer: onNext,"+value);
+				RLog.printInfo("Observer: onNext," + value);
 			}
 
 			@Override
 			public void onError(Throwable e) {
-				RLog.printInfo( "Observer: onError,"+e.getMessage());
+				RLog.printInfo("Observer: onError," + e.getMessage());
 			}
 
 			@Override
 			public void onComplete() {
-				RLog.printInfo( "Observer: onComplete");
+				RLog.printInfo("Observer: onComplete");
 			}
 		};
 
 		Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
 			@Override
 			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
-				RLog.printInfo( "Observable: onNext");
+				RLog.printInfo("Observable: onNext");
 				emitter.onNext(1);
-				RLog.printInfo( "Observable: onComplete");
+				RLog.printInfo("Observable: onComplete");
 				emitter.onComplete();
 			}
 		});
@@ -130,5 +131,99 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 	}
+
+	private void test3Thread() {
+
+
+		Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				RLog.printInfo(  "observable: onNext");
+				emitter.onNext(1);
+				RLog.printInfo(  "observable: onComplete");
+				emitter.onComplete();
+			}
+		});
+		Observer<Integer> observer = new Observer<Integer>() {
+
+
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo(  "Observer: onSubscribe");
+			}
+
+			@Override
+			public void onNext(Integer value) {
+				RLog.printInfo(  "Observer: onNext," + value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo(  "Observer: onError," + e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo(  "Observer: onComplete");
+			}
+		};
+
+		Observable<Integer> observableTread = observable.subscribeOn(Schedulers.NEW_THREAD);
+
+		observableTread.subscribe(observer);
+
+	}
+
+
+	private void test4Thread() {
+
+
+		Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				RLog.printInfo(  "observable: onNext");
+				emitter.onNext(1);
+				RLog.printInfo(  "observable: onComplete");
+				emitter.onComplete();
+			}
+		})
+				.subscribeOn(Schedulers.NEW_THREAD)
+				.observeOn(Schedulers.IO)
+				.map(new Function<Integer, String>() {
+					@Override
+					public String apply(Integer integer) throws Exception {
+						RLog.printInfo(  "切换线程: apply");
+						return "切换线程"+integer;
+					}
+				})
+				.observeOn(Schedulers.ANDROID_MAIN_THREAD)
+				.subscribe(new Observer<String>() {
+
+
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo(  "Observer: onSubscribe");
+			}
+
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo(  "Observer: onNext," + value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo(  "Observer: onError," + e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo(  "Observer: onComplete");
+			}
+		});
+
+
+	}
+
+
 
 }
