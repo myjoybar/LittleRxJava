@@ -29,7 +29,8 @@ public class ObservableMap<T, U> extends Observable<U> {
 		//source 为  Observable.create中创建的ObservableCreate对象，mapObserver
 		// mapObserver为桥梁Observer对象，桥梁Observer的对应事件会分发到传入的observer对应的事件中，在apply方法中，把传入的泛型转成R，这样就完成了map操作符的功能
 		MapObserver mapObserver = new MapObserver<T, U>(observer, function);
-		//让ObservableCreate订阅桥梁Observer对象 ，订阅成功后，ObservableCreate中emitter中的事件会分发到桥梁Observer的对应事件
+		//让ObservableCreate订阅桥梁Observer对象 ，订阅成功后，ObservableCreate中emitter中的事件会分发到桥梁Observer的对应事件中,又会把事件分发到真正
+		//的最后的观察者observer中，在桥梁Observerapply方法中，把传入的泛型转成结果R，通过onNext发送出去，这样就完成了map操作符的功能
 		source.subscribe(mapObserver);
 	}
 

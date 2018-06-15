@@ -10,7 +10,7 @@ import com.joy.rxjava.utils.RLog;
 
 public final class ObservableCreate<T> extends Observable<T> {
 
-	final ObservableOnSubscribe<T> source;//create 中传递的对象，执行subscribe会真正开始执行
+	final ObservableOnSubscribe<T> source;//create 中创建的ObservableOnSubscribe对象，执行subscribe会真正开始执行
 
 	public ObservableCreate(ObservableOnSubscribe<T> source) {
 		this.source = source;
@@ -19,13 +19,13 @@ public final class ObservableCreate<T> extends Observable<T> {
 	@Override
 	protected void subscribeActual(Observer<? super T> observer) {
 		//observer为观察者，当emitter中的方法执行时，会调用observer中的相关方法
-		CreateEmitter<T> parent = new CreateEmitter<T>(observer);
+		CreateEmitter<T> emitter = new CreateEmitter<T>(observer);
 		//通知观察者被订阅，
 		observer.onSubscribe();
 		try {
-			//真正开始执行，执行emitter中的方法
+			//真正开始执行的地方，紧接着会执行emitter中的方法，再执行observer中相关的方法
 			RLog.printInfo("真正开始执行，执行emitter中的方法");
-			source.subscribe(parent);
+			source.subscribe(emitter);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
