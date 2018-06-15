@@ -9,5 +9,4 @@ public final class Schedulers {
 	public static final Scheduler NEW_THREAD = NewThreadScheduler.getInstance();
 	public static final Scheduler ANDROID_MAIN_THREAD = AndroidSchedulers.getInstance();
 
-
 }

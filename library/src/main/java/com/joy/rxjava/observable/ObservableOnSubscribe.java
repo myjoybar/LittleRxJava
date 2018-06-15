@@ -6,6 +6,5 @@ package com.joy.rxjava.observable;
 
 public interface ObservableOnSubscribe<T> {
 
-
 	void subscribe(ObservableEmitter<T> emitter) throws Exception;
 }
