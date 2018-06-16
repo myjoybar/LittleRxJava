@@ -9,9 +9,13 @@ import com.joy.rxjava.functions.Function;
 import com.joy.rxjava.observable.Observable;
 import com.joy.rxjava.observable.ObservableEmitter;
 import com.joy.rxjava.observable.ObservableOnSubscribe;
+import com.joy.rxjava.observable.ObservableSource;
 import com.joy.rxjava.observer.Observer;
 import com.joy.rxjava.schedulers.Schedulers;
 import com.joy.rxjava.utils.RLog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -40,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		int id = v.getId();
 		switch (id) {
 			case R.id.btn_test1:
-				test4Thread();
+				test3FlapMap();
 				break;
 
 			default:
@@ -60,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 			}
 		});
 		Observer<Integer> observer = new Observer<Integer>() {
-
 
 			@Override
 			public void onSubscribe() {
@@ -87,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 	}
 
 
-	private void test2() {
+	private void test2Map() {
 		Observer<String> observer = new Observer<String>() {
 
 			@Override
@@ -131,6 +134,107 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 	}
+
+	private void test3FlapMapSimple() {
+		Observer<String> observer = new Observer<String>() {
+
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo("Observer: onSubscribe");
+			}
+
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo("Observer: onNext," + value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo("Observer: onError," + e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo("Observer: onComplete");
+			}
+		};
+
+		Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				RLog.printInfo("Observable: onNext");
+				emitter.onNext(1);
+				RLog.printInfo("Observable: onComplete");
+				emitter.onComplete();
+			}
+		});
+		Observable<String> observableMap = observable.flatMapSimple(new Function<Integer, ObservableSource<? extends String>>() {
+
+			@Override
+			public ObservableSource<? extends String> apply(Integer integer) throws Exception {
+				final List<String> list = new ArrayList<>();
+				for (int i = 0; i < 3; i++) {
+					list.add("I am value " + i);
+				}
+				return Observable.fromIterableSimple(list);
+			}
+		});
+
+		observableMap.subscribe(observer);
+
+
+	}
+
+	private void test3FlapMap() {
+		Observer<String> observer = new Observer<String>() {
+
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo("Observer: onSubscribe");
+			}
+
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo("Observer: onNext," + value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo("Observer: onError," + e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo("Observer: onComplete");
+			}
+		};
+
+		Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				RLog.printInfo("Observable: onNext");
+				emitter.onNext(1);
+				RLog.printInfo("Observable: onComplete");
+				emitter.onComplete();
+			}
+		});
+		Observable<String> observableMap = observable.flatMap(new Function<Integer, ObservableSource<? extends String>>() {
+
+			@Override
+			public ObservableSource<? extends String> apply(Integer integer) throws Exception {
+				final List<String> list = new ArrayList<>();
+				for (int i = 0; i < 3; i++) {
+					list.add("I am value " + i);
+				}
+				return Observable.fromIterable(list);
+			}
+		});
+
+		observableMap.subscribe(observer);
+
+
+	}
+
 
 	private void test3Thread() {
 

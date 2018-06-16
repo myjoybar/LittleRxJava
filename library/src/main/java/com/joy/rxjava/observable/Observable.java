@@ -27,10 +27,6 @@ public abstract class Observable<T> implements ObservableSource<T> {
 		return new ObservableMap<T, R>(this, mapper);
 	}
 
-//	public final <R> Observable<R> flatMap(Function<? super T, ? extends ObservableSource<? extends R>> mapper) {
-//		return new ObservableFlapMap(this, mapper);
-//	}
-
 	public final Observable<T> subscribeOn(Scheduler scheduler) {
 		return new ObservableSubscribeOn<T>(this, scheduler);
 	}
@@ -39,9 +35,18 @@ public abstract class Observable<T> implements ObservableSource<T> {
 		return new ObservableObserveOn<T>(this, scheduler);
 	}
 
+	public final <R> Observable<R> flatMap(Function<? super T, ? extends ObservableSource<? extends R>> mapper) {
+		return new ObservableFlapMap(this, mapper);
+	}
 	public static <T> Observable<T> fromIterable(Iterable<? extends T> source) {
 		return new ObservableFromIterable<T>(source);
 	}
 
+	public final <R> Observable<R> flatMapSimple(Function<? super T, ? extends ObservableSource<? extends R>> mapper) {
+		return new ObservableFlapMapSimple<>(this, mapper);
+	}
 
+	public static <T> Observable<T> fromIterableSimple(Iterable<? extends T> source) {
+		return new ObservableFromIterableSimple<>(source);
+	}
 }
