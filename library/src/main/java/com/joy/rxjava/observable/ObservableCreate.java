@@ -9,75 +9,58 @@ import com.joy.rxjava.utils.RLog;
  */
 
 public final class ObservableCreate<T> extends Observable<T> {
+    //source 为create 中创建的ObservableOnSubscribe对象
+    final ObservableOnSubscribe<T> source;
 
-	final ObservableOnSubscribe<T> source;//create 中创建的ObservableOnSubscribe对象，执行subscribe会真正开始执行
+    public ObservableCreate(ObservableOnSubscribe<T> source) {
+        this.source = source;
+    }
 
-	public ObservableCreate(ObservableOnSubscribe<T> source) {
-		this.source = source;
-	}
+    @Override
+    protected void subscribeActual(Observer<? super T> observer) {
+        //传入的observer为被订阅的观察者
+        CreateEmitter<T> emitter = new CreateEmitter<T>(observer);
+        //通知观察者被订阅，
+        observer.onSubscribe();
+        try {
+            //emitter开始执行，其发出的事件会传递到observer，完成了"观察者、被观察者模式"
+            RLog.printInfo("emitter开始发送事件");
+            source.subscribe(emitter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	protected void subscribeActual(Observer<? super T> observer) {
-		//observer为观察者，当emitter中的方法执行时，会调用observer中的相关方法
-		CreateEmitter<T> emitter = new CreateEmitter<T>(observer);
-		//通知观察者被订阅，
-		observer.onSubscribe();
-		try {
-			//真正开始执行的地方，紧接着会执行emitter中的方法，再执行observer中相关的方法
-			RLog.printInfo("真正开始执行，执行emitter中的方法");
-			source.subscribe(emitter);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    /**
+     * 把Emitter发出的事件分发给observer
+     * @param <T>
+     */
+    static final class CreateEmitter<T> implements ObservableEmitter<T> {
 
-	}
+        final Observer<? super T> observer;
 
-	static final class CreateEmitter<T> implements ObservableEmitter<T> {
-		private static final long serialVersionUID = -3434801548987643227L;
+        CreateEmitter(Observer<? super T> observer) {
+            this.observer = observer;
+        }
 
-		final Observer<? super T> observer;
+        @Override
+        public void onNext(T t) {
+            CheckUtils.checkNotNull(t, "onNext called parameter can not be null");
+            observer.onNext(t);
+        }
 
-		CreateEmitter(Observer<? super T> observer) {
-			this.observer = observer;
-		}
+        @Override
+        public void onError(Throwable error) {
+            observer.onError(error);
+        }
 
-		@Override
-		public void onNext(T t) {
-			RLog.printInfo("ObservableCreate: onNext");
-			CheckUtils.checkNotNull(t,"onNext called parameter can not be null");
-			if (!isDisposed()) {
-				observer.onNext(t);
-			}
-		}
-
-		@Override
-		public void onError(Throwable error) {
-			if (error == null) {
-				error = new NullPointerException("onError called with null. Null values are generally not allowed ");
-			}
-			if (!isDisposed()) {
-				observer.onError(error);
-			}
-
-		}
-
-		@Override
-		public void onComplete() {
-			RLog.printInfo("ObservableCreate: onComplete");
-			if (!isDisposed()) {
-				observer.onComplete();
-
-			}
-		}
-
-		@Override
-		public boolean isDisposed() {
-			return false;
-		}
-
-		@Override
-		public ObservableEmitter<T> serialize() {
-			return null;
-		}
-	}
+        @Override
+        public void onComplete() {
+            observer.onComplete();
+        }
+        @Override
+        public ObservableEmitter<T> serialize() {
+            return null;
+        }
+    }
 }

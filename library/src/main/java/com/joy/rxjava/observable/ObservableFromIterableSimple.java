@@ -21,6 +21,4 @@ public final class ObservableFromIterableSimple<T> extends Observable<T> {
     protected void subscribeActual(Observer<? super T> observer) {
 
     }
-
-
 }

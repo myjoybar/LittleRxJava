@@ -6,13 +6,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center"
     tools:context="com.joy.littlerx.MainActivity">
 
     <Button
-        android:id="@+id/btn_test1"
+        android:id="@+id/btn_base"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test"
+        android:text="基本"
         />
 
+    <Button
+        android:id="@+id/btn_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Map"
+        />
+
+    <Button
+        android:id="@+id/btn_flap_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FlapMap"
+        />
+
+    <Button
+        android:id="@+id/btn_zip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Zip"
+        />
+
+    <Button
+        android:id="@+id/btn_thread"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="map"
+        />
 </LinearLayout>

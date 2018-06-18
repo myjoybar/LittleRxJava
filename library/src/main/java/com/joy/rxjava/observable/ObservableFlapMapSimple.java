@@ -27,13 +27,8 @@ public class ObservableFlapMapSimple<T, U> extends Observable<U> {
 
     @Override
     public void subscribeActual(Observer<? super U> observer) {
-        //observer 为传入的观察者
-        //source 为  Observable.create中创建的ObservableCreate对象，mapObserver
-        // mapObserver为桥梁Observer对象，桥梁Observer的对应事件会分发到传入的observer对应的事件中，在apply方法中，把传入的泛型转成R
-        // ，这样就完成了map操作符的功能
-        MergeObserver mapObserver = new MergeObserver<T, U>(observer, function);
-        //让ObservableCreate订阅桥梁Observer对象 ，订阅成功后，ObservableCreate中emitter中的事件会分发到桥梁Observer的对应事件
-        source.subscribe(mapObserver);
+        MergeObserver mergeObserver = new MergeObserver<T, U>(observer, function);
+        source.subscribe(mergeObserver);
     }
 
     static final class MergeObserver<T, U> implements Observer<T> {
@@ -65,7 +60,6 @@ public class ObservableFlapMapSimple<T, U> extends Observable<U> {
             Iterable<? extends U> iterable  = observableFromIterable.getSource();
             Iterator<? extends U> it = iterable.iterator();
             while (it.hasNext()) {
-                RLog.printInfo("it.hasNext()");
                 U v = it.next();
                 actual.onNext(v);
             }
@@ -75,7 +69,6 @@ public class ObservableFlapMapSimple<T, U> extends Observable<U> {
         public void onError(Throwable error) {
             RLog.printInfo("ObservableFlapMapSimple: onError");
             actual.onError(error);
-
         }
 
         @Override

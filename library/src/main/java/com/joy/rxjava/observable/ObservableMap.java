@@ -12,7 +12,7 @@ import com.joy.rxjava.utils.RLog;
 public class ObservableMap<T, U> extends Observable<U> {
 
 	final Function<? super T, ? extends U> function;
-	final ObservableSource<T> source;
+	final ObservableSource<T> source;	//source 为create 中创建的ObservableOnSubscribe对象
 
 	public ObservableMap(ObservableSource<T> source, Function<? super T, ? extends U> function) {
 		this.source = source;
@@ -25,12 +25,12 @@ public class ObservableMap<T, U> extends Observable<U> {
 
 	@Override
 	public void subscribeActual(Observer<? super U> observer) {
-		//observer 为传入的观察者
-		//source 为  Observable.create中创建的ObservableCreate对象，mapObserver
-		// mapObserver为桥梁Observer对象，桥梁Observer的对应事件会分发到传入的observer对应的事件中，在apply方法中，把传入的泛型转成R，这样就完成了map操作符的功能
+		//传入的observer为被订阅的观察者
+		// mapObserver也是一个Observer对象，起到了桥接source（被观察者）和Observer（观察者）的作用，
+		// 的对应事件会分发到传入的observer对应的事件中，在apply方法中，把传入的泛型转成R，这样就完成了map操作符的功能
 		MapObserver mapObserver = new MapObserver<T, U>(observer, function);
-		//让ObservableCreate订阅桥梁Observer对象 ，订阅成功后，ObservableCreate中emitter中的事件会分发到桥梁Observer的对应事件中,又会把事件分发到真正
-		//的最后的观察者observer中，在桥梁Observerapply方法中，把传入的泛型转成结果R，通过onNext发送出去，这样就完成了map操作符的功能
+		//source订阅mapObserver之后 ，订阅成功后，source的emitter中的事件会分发给mapObserver,
+		// 在mapObserver通过apply方法，把传入的泛型T转成结果R，再通过onNext发送给真正的观察者actual，这样就完成了事件消息的传递和转换
 		source.subscribe(mapObserver);
 	}
 
@@ -47,12 +47,11 @@ public class ObservableMap<T, U> extends Observable<U> {
 		@Override
 		public void onSubscribe() {
 			RLog.printInfo("ObservableMap: onSubscribe");
-
+			actual.onSubscribe();
 		}
 
 		@Override
 		public void onNext(T t) {
-			RLog.printInfo("ObservableMap: onNext");
 			CheckUtils.checkNotNull(t, "onNext called parameter can not be null");
 			U v = null;
 			try {
@@ -65,16 +64,12 @@ public class ObservableMap<T, U> extends Observable<U> {
 
 		@Override
 		public void onError(Throwable error) {
-			RLog.printInfo("ObservableMap: onError");
 			actual.onError(error);
-
 		}
 
 		@Override
 		public void onComplete() {
-			RLog.printInfo("ObservableMap: onComplete");
 			actual.onComplete();
-
 		}
 
 	}

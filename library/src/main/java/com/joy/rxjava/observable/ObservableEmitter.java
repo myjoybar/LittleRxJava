@@ -6,7 +6,5 @@ package com.joy.rxjava.observable;
 
 public interface ObservableEmitter<T> extends Emitter<T> {
 
-	boolean isDisposed();
-
 	ObservableEmitter<T> serialize();
 }
