@@ -46,6 +46,7 @@ public class ObservableMap<T, U> extends Observable<U> {
 
 		@Override
 		public void onSubscribe() {
+			RLog.printInfo("ObservableMap: onSubscribe");
 
 		}
 
@@ -64,9 +65,7 @@ public class ObservableMap<T, U> extends Observable<U> {
 
 		@Override
 		public void onError(Throwable error) {
-			if (error == null) {
-				error = new NullPointerException("onError called with null. Null values are generally not allowed ");
-			}
+			RLog.printInfo("ObservableMap: onError");
 			actual.onError(error);
 
 		}

@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.joy.rxjava.functions.BiFunction;
 import com.joy.rxjava.functions.Function;
 import com.joy.rxjava.observable.Observable;
 import com.joy.rxjava.observable.ObservableEmitter;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		int id = v.getId();
 		switch (id) {
 			case R.id.btn_test1:
-				test3FlapMap();
+				test3Zip();
 				break;
 
 			default:
@@ -231,6 +232,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		});
 
 		observableMap.subscribe(observer);
+
+
+	}
+
+
+	private void test3Zip() {
+		Observer<String> observer = new Observer<String>() {
+
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo("Observer: onSubscribe");
+			}
+
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo("Observer: onNext," + value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo("Observer: onError," + e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo("Observer: onComplete");
+			}
+		};
+
+		Observable<Integer> observable1 = Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				emitter.onNext(1);
+				emitter.onNext(2);
+				emitter.onNext(3);
+				emitter.onComplete();
+			}
+		}).subscribeOn(Schedulers.NEW_THREAD);
+
+		Observable<String> observable2 = Observable.create(new ObservableOnSubscribe<String>() {
+			@Override
+			public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+				emitter.onNext("A");
+				emitter.onNext("B");
+				emitter.onNext("C");
+			}
+		}).subscribeOn(Schedulers.NEW_THREAD);
+		Observable<String> observableZip= Observable.zip(observable1, observable2, new BiFunction<Integer, String, String>() {
+
+
+			@Override
+			public String apply(Integer integer, String s) throws Exception {
+				return integer+s;
+			}
+		});
+
+		observableZip.subscribe(observer);
 
 
 	}
