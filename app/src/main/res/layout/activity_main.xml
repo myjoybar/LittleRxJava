@@ -41,6 +41,6 @@
         android:id="@+id/btn_thread"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="map"
+        android:text="线程调度"
         />
 </LinearLayout>

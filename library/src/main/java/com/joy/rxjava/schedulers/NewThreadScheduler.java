@@ -24,7 +24,7 @@ public class NewThreadScheduler extends Scheduler {
 
 	@Override
 	public void scheduleDirect(Runnable runnable) {
-		executorService().submit(runnable);
+		executorService().execute(runnable);
 	}
 
 	private static ExecutorService executorService;

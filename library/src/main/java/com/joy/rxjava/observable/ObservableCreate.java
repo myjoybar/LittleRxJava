@@ -23,7 +23,7 @@ public final class ObservableCreate<T> extends Observable<T> {
         //通知观察者被订阅，
         observer.onSubscribe();
         try {
-            //emitter开始执行，其发出的事件会传递到observer，完成了"观察者、被观察者模式"
+            //emitter开始执行，其发出的事件会传递到observer
             RLog.printInfo("emitter开始发送事件");
             source.subscribe(emitter);
         } catch (Exception e) {

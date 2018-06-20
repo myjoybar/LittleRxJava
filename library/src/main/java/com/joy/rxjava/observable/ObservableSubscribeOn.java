@@ -29,6 +29,7 @@ public class ObservableSubscribeOn<T> extends Observable<T> {
 		scheduler.scheduleDirect(new Scheduler.Worker() {
 			@Override
 			protected void execute() {
+				RLog.printInfo("我在这里切换");
 				source.subscribe(parent);
 			}
 		});
@@ -36,7 +37,6 @@ public class ObservableSubscribeOn<T> extends Observable<T> {
 
 
 	static final class SubscribeOnObserver<T>  implements Observer<T> {
-		private static final long serialVersionUID = 8094547886072529208L;
 		final Observer<? super T> actual;
 
 		SubscribeOnObserver(Observer<? super T> actual) {
@@ -44,28 +44,24 @@ public class ObservableSubscribeOn<T> extends Observable<T> {
 		}
 		@Override
 		public void onSubscribe() {
-
+			actual.onSubscribe();
 		}
 
 		@Override
 		public void onNext(T t) {
-			RLog.printInfo("ObservableSubscribeOn: onNext");
 			CheckUtils.checkNotNull(t, "onNext called parameter can not be null");
 			actual.onNext(t);
 		}
 
 		@Override
 		public void onError(Throwable error) {
-			RLog.printInfo("ObservableSubscribeOn: onComplete");
 			actual.onError(error);
 
 		}
 
 		@Override
 		public void onComplete() {
-			RLog.printInfo("ObservableSubscribeOn: onComplete");
 			actual.onComplete();
-
 		}
 
 	}

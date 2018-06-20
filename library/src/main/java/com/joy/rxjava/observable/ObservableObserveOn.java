@@ -3,7 +3,6 @@ package com.joy.rxjava.observable;
 import com.joy.rxjava.observer.Observer;
 import com.joy.rxjava.schedulers.Scheduler;
 import com.joy.rxjava.utils.CheckUtils;
-import com.joy.rxjava.utils.RLog;
 
 /**
  * Created by joybar on 2018/6/13.
@@ -41,7 +40,12 @@ public class ObservableObserveOn<T> extends Observable<T> {
 
 		@Override
 		public void onSubscribe() {
-
+			scheduler.scheduleDirect(new Scheduler.Worker() {
+				@Override
+				protected void execute() {
+					actual.onSubscribe();
+				}
+			});
 		}
 
 		@Override
@@ -49,7 +53,6 @@ public class ObservableObserveOn<T> extends Observable<T> {
 			scheduler.scheduleDirect(new Scheduler.Worker() {
 				@Override
 				protected void execute() {
-					RLog.printInfo("ObservableSubscribeOn: onNext");
 					CheckUtils.checkNotNull(t, "onNext called parameter can not be null");
 					actual.onNext(t);
 				}
@@ -61,7 +64,6 @@ public class ObservableObserveOn<T> extends Observable<T> {
 			scheduler.scheduleDirect(new Scheduler.Worker() {
 				@Override
 				protected void execute() {
-					RLog.printInfo("ObservableSubscribeOn: onComplete");
 					actual.onError(error);
 				}
 			});
@@ -73,12 +75,10 @@ public class ObservableObserveOn<T> extends Observable<T> {
 			scheduler.scheduleDirect(new Scheduler.Worker() {
 				@Override
 				protected void execute() {
-					RLog.printInfo("ObservableSubscribeOn: onComplete");
 					actual.onComplete();
 				}
 			});
 		}
-
 	}
 
 }

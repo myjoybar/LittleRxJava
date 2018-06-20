@@ -1,8 +1,7 @@
 package com.joy.rxjava.observable;
 
-import com.joy.rxjava.functions.Function;
+import com.joy.rxjava.functions.BiFunction;
 import com.joy.rxjava.observer.Observer;
-import com.joy.rxjava.utils.RLog;
 
 import java.util.Arrays;
 import java.util.Queue;
@@ -14,39 +13,36 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ObservableZip<T, R> extends Observable<R> {
 
-    final Function<? super Object[], ? extends R> zipper;
+    BiFunction<? super Object, ? super Object, R> biFunction;
     final ObservableSource<? extends T>[] sources;
 
-    public ObservableZip(ObservableSource<? extends T>[] sources, Function<? super Object[], ?
-            extends R> zipper) {
+    public ObservableZip(ObservableSource<? extends T>[] sources, BiFunction<? super Object, ? super Object, R> biFunction) {
         this.sources = sources;
-        this.zipper = zipper;
+        this.biFunction = biFunction;
     }
 
     @Override
     public void subscribeActual(Observer<? super R> observer) {
         ObservableSource<? extends T>[] sources = this.sources;
-        ZipCoordinator<T, R> zc = new ZipCoordinator<T, R>(observer, sources, zipper);
+        ZipCoordinator<T, R> zc = new ZipCoordinator<T, R>(observer, sources, biFunction);
         zc.subscribe();
     }
-
 
     static final class ZipCoordinator<T, R> {
         final Observer<? super R> actual;
         final ObservableSource<? extends T>[] sources;
-        final Function<? super Object[], ? extends R> zipper;
+        final BiFunction<? super Object, ? super Object, R> biFunction;
         final ZipObserver<T, R>[] observers;
         final T[] row;
 
         ZipCoordinator(Observer<? super R> actual, ObservableSource<? extends T>[] sources,
-                       Function<? super Object[], ? extends R> zipper) {
+                       BiFunction<? super Object, ? super Object, R> biFunction) {
             this.actual = actual;
             this.sources = sources;
-            this.zipper = zipper;
+            this.biFunction = biFunction;
             this.observers = new ZipObserver[sources.length];
             this.row = (T[]) new Object[sources.length];
         }
-
 
         public void subscribe() {
             int len = observers.length;
@@ -56,7 +52,6 @@ public class ObservableZip<T, R> extends Observable<R> {
             //通知观察者被订阅，
             actual.onSubscribe();
             for (int i = 0; i < len; i++) {
-                RLog.printInfo("ZipCoordinator: =========");
                 sources[i].subscribe(observers[i]);
             }
         }
@@ -67,7 +62,6 @@ public class ObservableZip<T, R> extends Observable<R> {
             for (; ; ) {
                 int length = observers.length;
                 for (int i = 0; i < length; i++) {
-                    RLog.printInfo("ZipCoordinator: =========drain--》" + i);
                     ZipObserver<T, R> zipObserver = observers[i];
                     Queue<T> queue = zipObserver.queue;
                     if (queue.isEmpty()) {
@@ -81,7 +75,7 @@ public class ObservableZip<T, R> extends Observable<R> {
                         os[1] = observers[1].queue.poll();
                         if (null != os[0] && null != os[1]) {
                             try {
-                                R result = zipper.apply(os);
+                                R result = biFunction.apply(os[0],os[1]);
                                 actual.onNext(result);
                                 Arrays.fill(os, null);
                             } catch (Exception e) {
@@ -93,7 +87,6 @@ public class ObservableZip<T, R> extends Observable<R> {
                 }
             }
         }
-
     }
 
 
@@ -109,31 +102,25 @@ public class ObservableZip<T, R> extends Observable<R> {
 
         @Override
         public void onSubscribe() {
-            RLog.printInfo("ZipObserver: onSubscribe");
         }
 
         @Override
         public void onNext(T t) {
-            RLog.printInfo("ZipObserver: onNext");
             queue.offer(t);
             parent.drain();
         }
 
         @Override
         public void onError(Throwable t) {
-            RLog.printInfo("ZipObserver: onError");
-            done = true;
             parent.drain();
         }
 
         @Override
         public void onComplete() {
-            RLog.printInfo("ZipObserver: onComplete");
             done = true;
             parent.drain();
         }
     }
-
 
 }
 
