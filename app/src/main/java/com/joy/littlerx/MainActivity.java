@@ -23,7 +23,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 	public static final String TAG = "MainActivity";
 	private Button buttonBase;
 	private Button buttonMap;
-	private Button buttonFlapMap;
+	private Button buttonFlapMapSample;
+	private Button buttonFlapMapIterable;
+	private Button buttonFlapMapArray;
 	private Button buttonZip;
 	private Button buttonThread;
 
@@ -38,7 +40,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 	private void initView() {
 		buttonBase = findViewById(R.id.btn_base);
 		buttonMap = findViewById(R.id.btn_map);
-		buttonFlapMap = findViewById(R.id.btn_flap_map);
+		buttonFlapMapSample = findViewById(R.id.btn_flap_map);
+		buttonFlapMapIterable = findViewById(R.id.btn_flap_map_iterable);
+		buttonFlapMapArray = findViewById(R.id.btn_flap_map_array);
 		buttonZip = findViewById(R.id.btn_zip);
 		buttonThread = findViewById(R.id.btn_thread);
 	}
@@ -46,7 +50,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 	private void initClickListener() {
 		buttonBase.setOnClickListener(this);
 		buttonMap.setOnClickListener(this);
-		buttonFlapMap.setOnClickListener(this);
+		buttonFlapMapSample.setOnClickListener(this);
+		buttonFlapMapIterable.setOnClickListener(this);
+		buttonFlapMapArray.setOnClickListener(this);
 		buttonZip.setOnClickListener(this);
 		buttonThread.setOnClickListener(this);
 	}
@@ -63,6 +69,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 				break;
 			case R.id.btn_flap_map:
 				test3FlapMapSimple();
+				break;
+			case R.id.btn_flap_map_iterable:
+				test3FlapMapIterable();
+				break;
+			case R.id.btn_flap_map_array:
+				test3FlapMapArray();
 				break;
 			case R.id.btn_zip:
 				testZip();
@@ -199,6 +211,90 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 	}
 
+
+	private void test3FlapMapIterable() {
+
+		Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				RLog.printInfo("emitter发送第一个onNext，value = 1");
+				emitter.onNext(1);
+				RLog.printInfo("emitter发送onComplete");
+				emitter.onComplete();
+			}
+		}).flatMapIterable(new Function<Integer, Iterable<String>>() {
+			@Override
+			public Iterable<String> apply(Integer value) throws Exception {
+				List<String> list = new ArrayList<>();
+				list.add("I am the first " + value);
+				list.add("I am the second " + value);
+				return list;
+			}
+		}).subscribe(new Observer<String>() {
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo("Observer被订阅");
+			}
+
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo("Observer接收到onNext，被转换之后的value = " + value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo("Observer接收到onError，errorMsg = " + e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo("Observer接收到onComplete");
+			}
+		});
+
+	}
+
+	private void test3FlapMapArray() {
+
+		Observable.create(new ObservableOnSubscribe<Integer>() {
+			@Override
+			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+				RLog.printInfo("emitter发送第一个onNext，value = 1");
+				emitter.onNext(1);
+				RLog.printInfo("emitter发送onComplete");
+				emitter.onComplete();
+			}
+		}).flatMapArray(new Function<Integer, String[]>() {
+			@Override
+			public String[] apply(Integer value) throws Exception {
+				String[] array = {"I am the first "+value,"I am the second "+value} ;
+				return array;
+			}
+		}).subscribe(new Observer<String>() {
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo("Observer被订阅");
+			}
+
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo("Observer接收到onNext，被转换之后的value = " + value);
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo("Observer接收到onError，errorMsg = " + e.getMessage());
+			}
+
+			@Override
+			public void onComplete() {
+				RLog.printInfo("Observer接收到onComplete");
+			}
+		});
+
+	}
+
+
 	private void testZip() {
 		Observable<Integer> observable1 = Observable.create(new ObservableOnSubscribe<Integer>() {
 			@Override
@@ -267,44 +363,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 				RLog.printInfo("emitter发送onComplete");
 				emitter.onComplete();
 			}
-		}).subscribeOn(Schedulers.NEW_THREAD)
-		  .subscribeOn(Schedulers.IO)
-		  .subscribeOn(Schedulers.NEW_THREAD)
-		  .subscribeOn(Schedulers.IO)
-		  .observeOn(Schedulers.IO)
-		  .map(new Function<Integer, String>() {
-				@Override
-				public String apply(Integer integer) throws Exception {
-					RLog.printInfo("切换线程");
-					return "切换线程" + integer;
-				}
-		}).observeOn(Schedulers.ANDROID_MAIN_THREAD)
-		  .subscribe(new Observer<String>() {
+		}).subscribeOn(Schedulers.NEW_THREAD).subscribeOn(Schedulers.IO).subscribeOn(Schedulers.NEW_THREAD).subscribeOn(Schedulers.IO).observeOn
+				(Schedulers.IO).map(new Function<Integer, String>() {
+			@Override
+			public String apply(Integer integer) throws Exception {
+				RLog.printInfo("切换线程");
+				return "切换线程" + integer;
+			}
+		}).observeOn(Schedulers.ANDROID_MAIN_THREAD).subscribe(new Observer<String>() {
 
-			  @Override
-			  public void onSubscribe() {
-				  RLog.printInfo("Observer被订阅");
-			  }
+			@Override
+			public void onSubscribe() {
+				RLog.printInfo("Observer被订阅");
+			}
 
-			  @Override
-			  public void onNext(String value) {
-				  RLog.printInfo("Observer接收到onNext，被转换之后的value = " + value);
-			  }
+			@Override
+			public void onNext(String value) {
+				RLog.printInfo("Observer接收到onNext，被转换之后的value = " + value);
+			}
 
-			  @Override
-			  public void onError(Throwable e) {
-				  RLog.printInfo("Observer接收到onError，errorMsg = " + e.getMessage());
-			  }
+			@Override
+			public void onError(Throwable e) {
+				RLog.printInfo("Observer接收到onError，errorMsg = " + e.getMessage());
+			}
 
-			  @Override
-			  public void onComplete() {
-				  RLog.printInfo("Observer接收到onComplete");
-			  }
+			@Override
+			public void onComplete() {
+				RLog.printInfo("Observer接收到onComplete");
+			}
 		});
 
 	}
 
-	private void testThread2(){
+	private void testThread2() {
 		Observable<Integer> observable1 = Observable.create(new ObservableOnSubscribe<Integer>() {
 			@Override
 			public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {

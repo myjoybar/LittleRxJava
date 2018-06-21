@@ -49,6 +49,12 @@ public abstract class Observable<T> implements ObservableSource<T> {
 		return new ObservableFlapMapSimple<>(this, mapper);
 	}
 
+	public final <R> Observable<R> flatMapIterable(Function<? super T, Iterable<R>> mapper) {
+		return new ObservableFlapMapIterable<>(this, mapper);
+	}
+	public final <R> Observable<R> flatMapArray(Function<? super T, R[]> mapper) {
+		return new ObservableFlapMapArray<>(this, mapper);
+	}
 
 	public static <T> Observable<T> fromIterableSimple(Iterable<? extends T> source) {
 		return new ObservableFromIterableSimple<>(source);

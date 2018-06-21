@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:gravity="center"
+    android:orientation="vertical"
     tools:context="com.joy.littlerx.MainActivity">
 
     <Button
@@ -24,11 +24,26 @@
         />
 
     <Button
+        android:id="@+id/btn_flap_map_iterable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FlapMapIterable"
+        />
+
+    <Button
+        android:id="@+id/btn_flap_map_array"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FlapMapArray"
+        />
+
+    <Button
         android:id="@+id/btn_flap_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="FlapMap"
+        android:text="FlapMapSample"
         />
+
 
     <Button
         android:id="@+id/btn_zip"
