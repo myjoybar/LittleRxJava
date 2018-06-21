@@ -168,11 +168,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 			}
 		}).flatMapSimple(new Function<Integer, ObservableSource<? extends String>>() {
 			@Override
-			public ObservableSource<? extends String> apply(Integer integer) throws Exception {
+			public ObservableSource<? extends String> apply(Integer value) throws Exception {
 				final List<String> list = new ArrayList<>();
-				for (int i = 0; i < 2; i++) {
-					list.add("I am value " + i);
-				}
+				list.add("I am the first " + value);
+				list.add("I am the second " + value);
 				return Observable.fromIterableSimple(list);
 			}
 		}).subscribe(new Observer<String>() {
